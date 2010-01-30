@@ -17,6 +17,8 @@ if [[ -z "$rvm_scripts_path" ]] ; then
   elif [[ -d "$rvm_path/scripts" ]] && [[ -s "$rvm_path/scripts/rvm" ]]; then
     rvm_scripts_path="$rvm_path/scripts"
   fi
+else
+  __rvm_validate_rvm_scripts_path
 fi
 
 rvm_archives_path="${rvm_archives_path:-"$rvm_path/archives"}"
