@@ -257,6 +257,7 @@ __rvm_reset() {
 
 # Implode removes the entire rvm installation under $rvm_path.
 __rvm_implode() {
+  __rvm_validate_rvm_scripts_path
   while : ; do
     $rvm_scripts_path/log "warn" "Are you SURE you wish for rvm to implode? This will remove $rvm_path ? (type 'yes' or 'no')"
     read response
