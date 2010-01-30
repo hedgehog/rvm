@@ -280,6 +280,21 @@ __rvm_implode() {
   done
 }
 
+# validates rvm_scripts_path, when it is set
+__rvm_validate_rvm_scripts_path(){
+  if [[ ! -z "$rvm_scripts_path" ]] ; then
+    if [[ ! -d "$rvm_scripts_path" ]] ; then
+      if [[ -d "$HOME/.rvm/scripts" ]] && [[ -s "$HOME/.rvm/scripts/rvm" ]]; then
+        rvm_scripts_path="$HOME/.rvm/scripts"
+      else
+        echo "The set rvm_scripts_path does not exist, nor does $HOME/.rvm/scripts or $HOME/.rvm/scripts/rvm."
+        echo "Unsetting rvm_scripts_path and exiting."
+        unset rvm_scripts_path
+        exit
+      fi
+    fi
+  fi
+}
 # Output the current ruby's rvm source path.
 __rvm_source_dir() {
   if [[ -z "$rvm_ruby_selected_flag" ]] ; then __rvm_select ; fi
