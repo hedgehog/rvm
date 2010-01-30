@@ -4,6 +4,8 @@
 # http://rvm.beginrescueend.com
 # http://gitub.com/wayneeseguin/rvm
 
+source $rvm_path/scripts/utility
+
 if [[ "$rvm_loaded_flag" != "1" ]] || [[ "$rvm_reload_flag" = "1" ]] ; then
   unset rvm_reload_flag
 
@@ -25,6 +27,7 @@ if [[ "$rvm_loaded_flag" != "1" ]] || [[ "$rvm_reload_flag" = "1" ]] ; then
     fi
   fi
   if [[ -d "$rvm_path" ]] ; then
+    __rvm_validate_rvm_scripts_path
     rvm_scripts_path="${rvm_scripts_path:-"$rvm_path/scripts"}"
     source $rvm_scripts_path/array
     source $rvm_scripts_path/utility
