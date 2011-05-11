@@ -1,4 +1,9 @@
 require 'yaml'
+require 'childprocess'
+#require 'tempfile'
+require 'stringio'
+require 'shellwords'
+require 'digest/md5'
 
 module RVM
   module Shell
@@ -34,6 +39,7 @@ module RVM
     # For an example of the shell wrapper functionality in action, see RVM::Environment
     # which delegates most of the work to a shell wrapper.
     class AbstractWrapper
+      include Shellwords
 
       # Used the mark the end of a commands output and the start of the rvm env.
       COMMAND_EPILOG_START = "---------------RVM-RESULTS-START---------------"
@@ -49,7 +55,7 @@ module RVM
       # default setup block. Implementations must override this method
       # but must ensure that they call super to perform the expected
       # standard setup.
-      def initialize(sh = 'bash', &setup_block)
+      def initialize(sh = 'bash', key = 'bash', &setup_block)
         setup &setup_block
         @shell_executable = sh
       end
@@ -68,7 +74,7 @@ module RVM
       # Under the hood, uses run_command to actually process it all.
       def run(command, *arguments)
         expanded_command = build_cli_call(command, arguments)
-        status, out, err = run_command(expanded_command)
+        exit_code, status, out, err = run_command(expanded_command)
         Result.new(expanded_command, status, out, err)
       end
 
@@ -76,6 +82,11 @@ module RVM
       # Essentially, #run but using run_command_silently.
       def run_silently(command, *arguments)
         run_command_silently build_cli_call(command, arguments)
+      end
+
+      # Ensure we can lookup a command's process from some list.
+      def command_key(command)
+        ::Digest::MD5.hexdigest(command)
       end
 
       # Given a command, it will execute it in the current wrapper
@@ -113,12 +124,12 @@ module RVM
 
       # Returns a command followed by the call to show the epilog.
       def wrapped_command(command)
-        "#{command}; __rvm_show_command_epilog"
+        "#{silent_command(build_cli_call(:source, WRAPPER_LOCATION))} #{command}; __rvm_show_command_epilog; "
       end
 
       # Wraps a command in a way that it prints no output.
       def silent_command(command)
-        "{ #{command}; } >/dev/null 2>&1"
+        "{ #{command}; } >/dev/null 2>&1; "
       end
 
       # Checks whether the given command includes a epilog, marked by
@@ -133,6 +144,7 @@ module RVM
       # 2. YAML output of the process results.
       # 3. Any left over from the STDIO text.
       def raw_stdout_to_parts(c)
+        return '','','' if c.nil?
         raise IncompleteCommandError if !command_complete?(c)
         before, after = c.split(COMMAND_EPILOG_START, 2)
         epilog, after = after.split(COMMAND_EPILOG_END, 2)

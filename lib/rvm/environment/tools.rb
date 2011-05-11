@@ -9,7 +9,7 @@ module RVM
     # Gets the identifier after cd'ing to a path, no destructive.
     def tools_path_identifier(path)
       path_identifier = rvm(:tools, "path-identifier", path.to_s)
-      if path_identifier.exit_status == 2
+      if path_identifier.rvm_exit_status == 2
         error_message = "The rvmrc located in '#{path}' could not be loaded, likely due to trust mechanisms."
         error_message << " Please run 'rvm rvmrc {trust,untrust} \"#{path}\"' to continue, or set rvm_trust_rvmrcs_flag to 1."
         raise ErrorLoadingRVMRC, error_message

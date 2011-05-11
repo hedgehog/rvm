@@ -12,7 +12,7 @@ module RVM
         @command     = command.dup.freeze
         @raw_status  = status
         @environment = @raw_status["environment"] || {}
-        @successful  = (exit_status == 0)
+        @successful  = (rvm_exit_status == 0)
         @stdout      = stdout.freeze
         @stderr      = stderr.freeze
       end
@@ -33,8 +33,8 @@ module RVM
       end
 
       # Returns the exit status for the program
-      def exit_status
-        @exit_status ||= (Integer(@raw_status["exit_status"]) rescue 1)
+      def rvm_exit_status
+        @rvm_exit_status ||= (Integer(@raw_status["exit_status"]) rescue 1)
       end
 
     end
